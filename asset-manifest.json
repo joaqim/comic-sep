@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "https://joaqim.github.io/comic-sep/static/css/main.6fac324c.chunk.css",
+    "main.js": "https://joaqim.github.io/comic-sep/static/js/main.04b5c176.chunk.js",
+    "main.js.map": "https://joaqim.github.io/comic-sep/static/js/main.04b5c176.chunk.js.map",
+    "runtime-main.js": "https://joaqim.github.io/comic-sep/static/js/runtime-main.4508c259.js",
+    "runtime-main.js.map": "https://joaqim.github.io/comic-sep/static/js/runtime-main.4508c259.js.map",
+    "static/css/2.d58fcd6a.chunk.css": "https://joaqim.github.io/comic-sep/static/css/2.d58fcd6a.chunk.css",
+    "static/js/2.1133d4bc.chunk.js": "https://joaqim.github.io/comic-sep/static/js/2.1133d4bc.chunk.js",
+    "static/js/2.1133d4bc.chunk.js.map": "https://joaqim.github.io/comic-sep/static/js/2.1133d4bc.chunk.js.map",
+    "index.html": "https://joaqim.github.io/comic-sep/index.html",
+    "precache-manifest.09ceed0020cc5aead2b813132f4ceb90.js": "https://joaqim.github.io/comic-sep/precache-manifest.09ceed0020cc5aead2b813132f4ceb90.js",
+    "service-worker.js": "https://joaqim.github.io/comic-sep/service-worker.js",
+    "static/css/2.d58fcd6a.chunk.css.map": "https://joaqim.github.io/comic-sep/static/css/2.d58fcd6a.chunk.css.map",
+    "static/css/main.6fac324c.chunk.css.map": "https://joaqim.github.io/comic-sep/static/css/main.6fac324c.chunk.css.map"
+  }
+}
