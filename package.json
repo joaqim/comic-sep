@@ -2,7 +2,7 @@
   "name": "comic-sep",
   "version": "0.1.0",
   "private": true,
-  "homepage" : "https://joaqim.xyz/comic-sep",
+  "homepage" : "https://joaqim.github.io/comic-sep",
   "dependencies": {
     "@babel/core": "7.6.0",
     "@hot-loader/react-dom": "^16.9.0",
