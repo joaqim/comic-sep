@@ -21,21 +21,25 @@ import { useSwipeable } from 'react-swipeable'
 
 import comics_json_LOCAL from './comic.json'
 //var comics_json_LOCAL = NaN
+import EventComponent from './EventComponent.js'
 
 //import { fetchJSON } from './utils/comicUtils.js'
 
+/*
 interface Number {
     pad: () => string;
     str: () => string;
 }
+*/
 
-function pad(val : number) {
+function pad(val) {
     var s = String(val)
     const size = 3;
     while (s.length < (size || 2)) {s = "0" + s;}
     return s;
 }
 
+/*
 Number.prototype.pad = function() : string {
     var s = String(this);
     const size = 3;
@@ -46,6 +50,7 @@ Number.prototype.pad = function() : string {
 Number.prototype.str = function() : string {
     return String(this)
 }
+*/
 
 const pages = [
     'https://images.pexels.com/photos/62689/pexels-photo-62689.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
@@ -92,7 +97,7 @@ let App = () => {
             return { x, sc, display: 'block' }
         })
     })
-   
+
     const api_root = "https://comic-editor.s3.eu-north-1.amazonaws.com"
     const comic_name = "One Piece - Digital Colored Comics"
 
@@ -109,6 +114,7 @@ let App = () => {
     const [has_hq, setHasHQ] = useState(false)
 
     const [pages_data, setPagesData] = useState([])
+    const [swiped, setSwiped] = useState(false)
 
     useEffect(() => {fetchComics(comics_json)}, [comics_json]);
     useEffect(() => {getComicsLabels(comics_labels)}, [comics_json])
@@ -153,8 +159,7 @@ let App = () => {
     };
 
     const handleClick = (event) => {
-
-            console.log(event);
+	console.log(event);
         if(event.type === "mouseclick") {
             alert(event)
         }
@@ -182,7 +187,7 @@ let App = () => {
     })
 
     return (
-        <div>
+        <>
         {comics_labels && false ? <Dropdown options={comics_labels} onChange={setPage} value={comics_labels[chapter_nr]} placeholder="Select an option" /> : null}
         {
             /*
@@ -191,16 +196,19 @@ let App = () => {
         }
         {
             chapter_name ?
-                <div id="imgbox" {...tapOrClick(handleClick)}>
-                <ReactImageAppear id="center-fit" {...handlers} 
+		<EventComponent onSwiped={setSwiped}>
+                <div id="img-box" {...tapOrClick(handleClick)}>
+	<b>{`${swiped?'Swiped':'Not Swiped'}`}</b>
+                <ReactImageAppear id="img-background" {...handlers}
             src={encodeURI(`${api_root}/${comic_name}/${chapter_name}${has_hq && hq_enabled?"/hq/":"/"}${pad(page_nr)}.png`)} placeholder={encodeURI(`${api_root}/${comic_name}/${chapter_name}/${pad(page_nr)}.png`)} showLoader={false} animationDuration={'0'}/>
 
 </div>
+</EventComponent>
                         : null
         }
-            <button onClick={alert}>Next</button>
+            <button onClick={handleClick}>Next</button>
 
-        </div>
+        </>
     )
 }
 
