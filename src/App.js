@@ -1,5 +1,5 @@
 import { render } from 'react-dom'
-import React, { useEffect, useState, Image, useRef} from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import { hot } from 'react-hot-loader';
 import Img from 'react-image'
 import ReactImageAppear from 'react-image-appear'
@@ -11,26 +11,23 @@ import 'react-dropdown/style.css'
 
 //import { Swipeable, defineSwipe } from 'react-touch'
 
-import clamp from 'lodash-es/clamp'
-import { useSprings, animated } from 'react-spring'
-import { useGesture } from 'react-with-gesture'
+import clamp from 'lodash-es/clamp' // Not used
+import { useSprings, animated } from 'react-spring' // Not used
+import { useGesture } from 'react-with-gesture' // Not used
 //import './styles.css'
 
-import tapOrClick from 'react-tap-or-click'
-import { useSwipeable } from 'react-swipeable'
+import tapOrClick from 'react-tap-or-click' // Not used
+import { useSwipeable } from 'react-swipeable' // Not used
 
-import comics_json_LOCAL from './comic.json'
-//var comics_json_LOCAL = NaN
+import Drawer from 'react-motion-drawer'
+
 import EventComponent from './EventComponent.js'
 
-//import { fetchJSON } from './utils/comicUtils.js'
+import comics_json_LOCAL from './comics.json'
 
-/*
-interface Number {
-    pad: () => string;
-    str: () => string;
-}
-*/
+//var comics_json_LOCAL = null
+
+//import { fetchJSON } from './utils/comicUtils.js'
 
 function pad(val) {
     var s = String(val)
@@ -38,8 +35,12 @@ function pad(val) {
     while (s.length < (size || 2)) {s = "0" + s;}
     return s;
 }
-
 /*
+interface Number {
+    pad: () => string;
+    str: () => string;
+}
+
 Number.prototype.pad = function() : string {
     var s = String(this);
     const size = 3;
@@ -84,7 +85,7 @@ let Viewpager = () => {
 }
 
 let App = () => {
-	const index = useRef(0)
+    const index = useRef(0)
 
     const [props, set] = useSprings(pages.length, i => ({ x: i * window.innerWidth, sc: 1, display: 'block' }))
     const bind = useGesture(({ down, delta: [xDelta], direction: [xDir], distance, cancel }) => {
@@ -101,74 +102,133 @@ let App = () => {
     const api_root = "https://comic-editor.s3.eu-north-1.amazonaws.com"
     const comic_name = "One Piece - Digital Colored Comics"
 
-    const [comics_json, setComicsJson] = useState(comics_json_LOCAL)
+    //const [comics_json, setComicsJson] = useState(comics_json_LOCAL ? comics_json_LOCAL : null)
+    const [comics_json, setComicsJson] = useState()
+
     const [comics_labels, setComicsLabels] = useState([])
     const [comic_data, setComicData] = useState([])
     const [comic_images, setComicImages] = useState([])
 
-    const [chapter_nr, setChapterNr] = useState(512)
+    const [chapter_nr, setChapterNr] = useState(523)
     const [chapter_name, setChapterName] = useState()
     const [page_nr, setPageNr] = useState(1)
+    const [page_count, setPageCount] = useState(0)
+    const [source_arr, setSourceArr] = useState([])
 
-    const [hq_enabled, setHQEnabled] = useState(false)
+    const [hq_enabled, setHQEnabled] = useState(true)
     const [has_hq, setHasHQ] = useState(false)
+    const [preload_images, setPreloadImages] = useState(false)
 
     const [pages_data, setPagesData] = useState([])
     const [swiped, setSwiped] = useState(false)
+    const [is_drawer_open, setIsDrawerOpen] = useState(false)
 
     useEffect(() => {fetchComics(comics_json)}, [comics_json]);
-    useEffect(() => {getComicsLabels(comics_labels)}, [comics_json])
-    //useEffect(() => {getComicImages(comic_images)}, [comics_json, chapter_nr])
-    useEffect(() => {getComicData(comic_data)}, [comics_json, chapter_nr])
+    //useEffect(() => {getComicsLabels(comics_labels)}, [comics_json, comic_name])
+    //useEffect(() => {getComicData(comic_data)}, [comics_json, chapter_nr])
+
 
     const getComicData = () => {
-        let comic_data = comics_json[comic_name]
+        //if(isNaN(comics_json)) return;
+        //let comic_data = comics_json[comic_name]
     }
 
-    /*
-    const getComicImages = () => {
-        let images = []
-        images[0] = {index: 0, label: "Empty", source: null}
-        setComicImages(images)
-    }*/
+    const getComicImages = (new_chapter) => {
+	if(! preload_images) return;
+	for(var i=1;i <= new_chapter.count;i++) {
+		new Image().src = encodeURI(`${api_root}/${comic_name}/${new_chapter.label}/${new_chapter.hq && hq_enabled?"hq/":"/"}${pad(i)}.png`)
+		//new Image().src = encodeURI(`${api_root}/${comic_name}/${new_chapter.label}/${pad(i)}.png`)
+	}
+    }
 
-    const getComicsLabels = () => {
+    const getComicsLabels = (json) => {
+        //if(isNaN(json)) return;
         let labels = [];
-        Object.entries(comics_json[comic_name]).forEach(function(chapter, index) {
+        Object.entries(json[comic_name]).forEach(function(chapter, index) {
             let title = chapter[1]['t']
+            let hq    = chapter[1]['h']
             let count = chapter[1]['c']
-            let hq =    (chapter[1]['h'] === "true") ? true : false
-
-            labels[index] = { value: index, label: title, hq: hq }
+            labels[index] = { value: index, label: title, hq: hq , count: count}
         })
         setComicsLabels(labels)
-        setPage(labels[chapter_nr])
+	changeChapter(labels, chapter_nr, 1)
+	getComicImages(labels[chapter_nr]);
+        //setPage(labels[chapter_nr], 1)
+	//setPageCount(count)
     }
 
     const fetchComics = async () => {
-        if(comics_json) return;
+	if(comics_json) return;
         try {
-            const response = await fetch(encodeURI(`${api_root}/${comic_name}/comic.json`))
+            const response = await fetch(encodeURI(`${api_root}/comics.json`))
             let json = await response.json()
             let labels = []
             Object.keys(json).forEach(function(index) {labels[index] = json[index]})
             setComicsJson(json);
+	    getComicsLabels(json)
         } catch(error) {
             console.error(error)
         }
     };
 
     const handleClick = (event) => {
-	console.log(event);
+	//console.log(event);
         if(event.type === "mouseclick") {
             alert(event)
         }
     }
 
-    const setPage = (data) => {
-        setPageNr(1)
-        setChapterName(data.label)
-        setHasHQ(data.hq)
+    const setPage = (data, nr) => {
+	console.log(data)
+        setPageNr(nr)
+        setSourceArr(encodeURI(`${api_root}/${comic_name}/${data.label}${data.hq && hq_enabled?"/hq/":"/"}${pad(nr)}.png`))
+    }
+
+    const changeChapter = (labels, new_chapter_nr, new_page_nr) => {
+
+        setChapterName(labels[new_chapter_nr].label)
+        setChapterNr(new_chapter_nr)
+        setHasHQ(labels[new_chapter_nr].hq)
+
+	setPage(labels[new_chapter_nr], new_page_nr)
+    }
+
+    const prevChapter = () => {
+	    changeChapter(comics_labels, chapter_nr-1, comics_labels[chapter_nr-1].count-1)
+    }
+    const nextChapter = () => {
+	    getComicImages(comics_labels[chapter_nr-1]);
+	    changeChapter(comics_labels, chapter_nr-1, 1)
+    }
+
+
+    const nextPage = () => {
+	console.log("Next Page")
+	if(page_nr+1 >= comics_labels[chapter_nr].count) {
+		nextChapter();
+		//changeChapter(comics_labels, chapter_nr+1, 1)
+	} else {
+		setPage(comics_labels[chapter_nr], page_nr+1)
+	}
+    }
+    const prevPage = () => {
+	console.log("Prev Page")
+	if (page_nr-1 <= 0) {
+		prevChapter();
+		//changeChapter(comics_labels, chapter_nr-1, comics_labels[chapter_nr-1].count-1)
+	} else {
+		setPage(comics_labels[chapter_nr], page_nr-1)
+	}
+    }
+    const onTap = (touch) => {
+	//console.log(touch.clientX)
+	const sideMargin = window.innerWidth / 6;
+	if(touch.clientX < sideMargin) {
+		nextPage();
+	} else
+	if(touch.clientX > window.innerWidth - sideMargin) {
+		prevPage();
+	}
     }
 
     /*
@@ -180,33 +240,60 @@ let App = () => {
     */
 
     const handlers = useSwipeable({
-        onSwipedLeft: () => alert(2),
-        onSwipedRight: () => alert(1),
+        onSwipedLeft: () => console.warn("Alternative swipe Left"),
+        onSwipedRight: () => console.warn("Alternative swipe Right"),
         preventDefaultTouchmoveEvent: true,
         trackMouse: true
     })
+
+    const listChange = (e) => {
+	console.log(e.)
+	}
 
     return (
         <>
         {comics_labels && false ? <Dropdown options={comics_labels} onChange={setPage} value={comics_labels[chapter_nr]} placeholder="Select an option" /> : null}
         {
-            /*
-              comic_images ? <Dropdown options={comic_images} onChange={_onSelect} value={comic_images[0]} placeholder="Select an option" /> : null
-            */
+              //comic_images ? <Dropdown options={comic_images} onChange={setPage} value={comic_images[page_nr]} placeholder="Select an option" /> : null
         }
+	<Drawer open={is_drawer_open} onChange={setIsDrawerOpen}>
+	<ul>
+	{ comics_labels ? comics_labels.map(function(label) {
+		//return <li>i</li>
+    		//const changeChapter = (labels, new_chapter_nr, new_page_nr) => {
+		//return (<li key={label.value} onClick={console.log}>{label.value}</li>)
+		return (<li key={label.value} data-id={"Test"} onClick={listChange.bind(this)}>{label.value}</li>)
+	}) : null}
+	</ul>
+	</Drawer>
         {
             chapter_name ?
-		<EventComponent onSwiped={setSwiped}>
+		<EventComponent onSwiped={setSwiped} onSwipedLeft={nextPage} onSwipedRight={prevPage} onTap={onTap}>
                 <div id="img-box" {...tapOrClick(handleClick)}>
-	<b>{`${swiped?'Swiped':'Not Swiped'}`}</b>
-                <ReactImageAppear id="img-background" {...handlers}
-            src={encodeURI(`${api_root}/${comic_name}/${chapter_name}${has_hq && hq_enabled?"/hq/":"/"}${pad(page_nr)}.png`)} placeholder={encodeURI(`${api_root}/${comic_name}/${chapter_name}/${pad(page_nr)}.png`)} showLoader={false} animationDuration={'0'}/>
 
+{ false ?
+<>
+	<b>{`${swiped?'Swiped':'Not Swiped'}`}</b>
+	<b>{`${page_nr}`}</b>
+</>
+: null}
+	{window.scrollTo(0, 0)}
+		{false ?
+                <ReactImageAppear id="img-background" {...handlers}
+            src={encodeURI(`${api_root}/${comic_name}/${chapter_name}${has_hq && hq_enabled?"/hq/":"/"}${pad(page_nr)}.png?${new Date().getTime()}`)} placeholder={encodeURI(`${api_root}/${comic_name}/${chapter_name}/${pad(page_nr)}.png`)} showLoader={false} animationDuration={'0'}/>
+:
+                true ? <img
+		 id="img-background"
+		 alt=""
+		//src={source_arr} // source_arr
+		src={"https://via.placeholder.com/480x640"}
+		{...handlers} showLoader={false} animationDuration={'0'}/> : null
+}
 </div>
 </EventComponent>
                         : null
         }
-            <button onClick={handleClick}>Next</button>
+            { false ? <button onClick={nextPage}>Next</button> : null}
 
         </>
     )

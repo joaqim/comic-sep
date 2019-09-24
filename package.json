@@ -2,7 +2,7 @@
   "name": "comic-sep",
   "version": "0.1.0",
   "private": true,
-  "homepage" : "https://joaqim.github.io/comic-sep",
+  "homepage": "https://joaqim.github.io/comic-sep",
   "dependencies": {
     "@babel/core": "7.6.0",
     "@hot-loader/react-dom": "^16.9.0",
@@ -53,6 +53,7 @@
     "react-dropdown": "^1.6.4",
     "react-image": "^2.2.0",
     "react-image-appear": "^1.1.21",
+    "react-motion-drawer": "^3.1.0",
     "react-spring": "^8.0.27",
     "react-swipeable": "^5.4.0",
     "react-tap-or-click": "^0.2.1",
