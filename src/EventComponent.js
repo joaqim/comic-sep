@@ -16,7 +16,13 @@ export default class EventComponent extends React.Component {
 
   _onTouchStart(e) {
     const touch = e.touches[0];
-    this._swipe = { x: touch.clientX };
+	// If multiple touches? Ignore ?
+	if (e.touches.length > 1) {
+		this._swipe = {}
+		this.setState({ swiped: false })
+		return
+	}
+    this._swipe = { x: touch.clientX, y: touch.clientY };
     this.setState({ swiped: false });
   }
 
@@ -29,10 +35,31 @@ export default class EventComponent extends React.Component {
 
   _onTouchEnd(e) {
     const touch = e.changedTouches[0];
+
+    if( !this._swipe.swiping) {
+	    this.props.onTap && this.props.onTap(touch)
+	    return
+    }
     const absX = Math.abs(touch.clientX - this._swipe.x);
+    const absY = Math.abs(touch.clientY - this._swipe.y);
+    // Don't swip if AbY is too high
+    if(this._swipe.swiping && absY > 80) {
+	this._swipe = {}
+	return
+	}
+
     if (this._swipe.swiping && absX > this.minDistance ) {
       this.props.onSwiped(true);
       this.setState({ swiped: true });
+      if(touch.clientX < this._swipe.x) {
+	      // Swipe Right
+		this.props.onSwipedRight && this.props.onSwipedRight();
+      }
+      if(touch.clientX > this._swipe.x) {
+	      // Swipe Left
+		this.props.onSwipedLeft && this.props.onSwipedLeft();
+
+      }
     }
     this._swipe = {};
   }
@@ -43,7 +70,7 @@ export default class EventComponent extends React.Component {
         onTouchStart={this._onTouchStart}
         onTouchMove={this._onTouchMove}
         onTouchEnd={this._onTouchEnd}>
-        {`Component-${this.state.swiped ? 'swiped' : ''}`}
+        { false ? `Component-${this.state.swiped ? 'swiped' : ''}` : null}
 	{this.props.children}
       </div>
     );
