@@ -12,6 +12,23 @@ padding: 0;
     width: 100%;
 }
 
+#dropdown {
+    zoom: 1;
+    display: block;
+
+    max-height: 100%;
+    max-width: 100%;
+    width: 100%;
+}
+
+#list-label {
+	border: 0.1vh solid gray;
+	background-color: darkgray;
+	text-align: left;
+	opacity: 0.9;
+}
+
+
 /*
 
 #root {

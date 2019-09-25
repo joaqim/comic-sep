@@ -8,6 +8,7 @@ import './App.css';
 //import axios from 'axios'
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
+import Select from 'react-select'
 
 //import { Swipeable, defineSwipe } from 'react-touch'
 
@@ -19,7 +20,16 @@ import { useGesture } from 'react-with-gesture' // Not used
 import tapOrClick from 'react-tap-or-click' // Not used
 import { useSwipeable } from 'react-swipeable' // Not used
 
+import Drawer from 'react-motion-drawer'
+import Flatlist from 'flatlist-react'
+
+//import AutoSize from 'react-virtualized'
+
+import AutoSize from 'react-virtualized/dist/commonjs/AutoSizer'
+import List from 'react-virtualized/dist/commonjs/List'
+
 import EventComponent from './EventComponent.js'
+import LabelList from './LabelList.js'
 
 import comics_json_LOCAL from './comics.json'
 
@@ -51,14 +61,7 @@ Number.prototype.str = function() : string {
 }
 */
 
-const pages = [
-    'https://images.pexels.com/photos/62689/pexels-photo-62689.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    'https://images.pexels.com/photos/296878/pexels-photo-296878.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    'https://images.pexels.com/photos/1509428/pexels-photo-1509428.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    'https://images.pexels.com/photos/351265/pexels-photo-351265.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    'https://images.pexels.com/photos/924675/pexels-photo-924675.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'
-]
-
+/*
 let Viewpager = () => {
     const index = useRef(0)
 
@@ -81,10 +84,12 @@ let Viewpager = () => {
             </animated.div>
     ))
 }
+*/
 
 let App = () => {
-	const index = useRef(0)
+    const index = useRef(0)
 
+/*
     const [props, set] = useSprings(pages.length, i => ({ x: i * window.innerWidth, sc: 1, display: 'block' }))
     const bind = useGesture(({ down, delta: [xDelta], direction: [xDir], distance, cancel }) => {
         if (down && distance > window.innerWidth / 7)
@@ -96,6 +101,7 @@ let App = () => {
             return { x, sc, display: 'block' }
         })
     })
+*/
 
     const api_root = "https://comic-editor.s3.eu-north-1.amazonaws.com"
     const comic_name = "One Piece - Digital Colored Comics"
@@ -107,17 +113,22 @@ let App = () => {
     const [comic_data, setComicData] = useState([])
     const [comic_images, setComicImages] = useState([])
 
-    const [chapter_nr, setChapterNr] = useState(523)
+    const [chapter_nr, setChapterNr] = useState(536) //523 ( Add @1 )
     const [chapter_name, setChapterName] = useState()
     const [page_nr, setPageNr] = useState(1)
     const [page_count, setPageCount] = useState(0)
     const [source_arr, setSourceArr] = useState([])
 
-    const [hq_enabled, setHQEnabled] = useState(true)
+    const [hq_enabled, setHQEnabled] = useState(false)
     const [has_hq, setHasHQ] = useState(false)
+    const [preload_images, setPreloadImages] = useState(true)
 
     const [pages_data, setPagesData] = useState([])
     const [swiped, setSwiped] = useState(false)
+    const [is_drawer_open, setIsDrawerOpen] = useState(false)
+
+    const [current_label, setCurrentLabel] = useState()
+    const listRef = useRef(null);
 
     useEffect(() => {fetchComics(comics_json)}, [comics_json]);
     //useEffect(() => {getComicsLabels(comics_labels)}, [comics_json, comic_name])
@@ -130,8 +141,9 @@ let App = () => {
     }
 
     const getComicImages = (new_chapter) => {
+	if(! preload_images) return;
 	for(var i=1;i <= new_chapter.count;i++) {
-		new Image().src = encodeURI(`${api_root}/${comic_name}/${new_chapter.label}/${new_chapter.hq && hq_enabled?"hq/":"/"}${pad(i)}.png`)
+		new Image().src = encodeURI(`${api_root}/${comic_name}/${new_chapter.label}/${new_chapter.hq && hq_enabled?"hq/":""}${pad(i)}.png`)
 		//new Image().src = encodeURI(`${api_root}/${comic_name}/${new_chapter.label}/${pad(i)}.png`)
 	}
     }
@@ -141,24 +153,30 @@ let App = () => {
         let labels = [];
         Object.entries(json[comic_name]).forEach(function(chapter, index) {
             let title = chapter[1]['t']
-            let hq    = chapter[1]['h']
             let count = chapter[1]['c']
-            labels[index] = { value: index, label: title, hq: hq , count: count}
+            let hq    = chapter[1]['hq']
+            labels[index] = { value: index, label: title, count: count, hq: hq}
         })
         setComicsLabels(labels)
+	new Image().src = encodeURI(`${api_root}/${comic_name}/${labels[chapter_nr].label}/${labels[chapter_nr].hq && hq_enabled?"hq/":""}${pad(2)}.png`) // Preload the Second Image
 	changeChapter(labels, chapter_nr, 1)
-	getComicImages(labels[chapter_nr]);
+	//getComicImages(labels[chapter_nr]);
         //setPage(labels[chapter_nr], 1)
 	//setPageCount(count)
     }
 
     const fetchComics = async () => {
 	if(comics_json) return;
+	if(comics_json_LOCAL) {
+		setComicsJson(comics_json_LOCAL)
+		getComicsLabels(comics_json_LOCAL)
+		return;
+	}
         try {
             const response = await fetch(encodeURI(`${api_root}/comics.json`))
             let json = await response.json()
-            let labels = []
-            Object.keys(json).forEach(function(index) {labels[index] = json[index]})
+            //let labels = []
+            //Object.keys(json).forEach(function(index) {labels[index] = json[index]})
             setComicsJson(json);
 	    getComicsLabels(json)
         } catch(error) {
@@ -173,27 +191,33 @@ let App = () => {
         }
     }
 
-    const setPage = (data, nr) => {
+    const setPage = (data, nr=null) => {
+	if(typeof(nr) !== "number") nr=1;
 	console.log(data)
+	//if(data.value !== chapter_nr) {
+		//changeChapter(data.value)
+
+		//return
+	//}
         setPageNr(nr)
-        setSourceArr(encodeURI(`${api_root}/${comic_name}/${data.label}${data.hq && hq_enabled?"/hq/":"/"}${pad(nr)}.png`))
+	setCurrentLabel(data)
+        setSourceArr(encodeURI(`${api_root}/${comic_name}/${data.label}/${data.hq && hq_enabled?"hq/":""}${pad(nr)}.png`))
     }
 
     const changeChapter = (labels, new_chapter_nr, new_page_nr) => {
-
+	//getComicImages(labels[new_chapter_nr])
         setChapterName(labels[new_chapter_nr].label)
         setChapterNr(new_chapter_nr)
         setHasHQ(labels[new_chapter_nr].hq)
-
 	setPage(labels[new_chapter_nr], new_page_nr)
+	new Image().src = encodeURI(`${api_root}/${comic_name}/${labels[new_chapter_nr].label}/${labels[new_chapter_nr].hq && hq_enabled?"hq/":""}${pad(2)}.png`) // Preload the Second Image
     }
 
     const prevChapter = () => {
 	    changeChapter(comics_labels, chapter_nr-1, comics_labels[chapter_nr-1].count-1)
     }
     const nextChapter = () => {
-	    getComicImages(comics_labels[chapter_nr-1]);
-	    changeChapter(comics_labels, chapter_nr-1, 1)
+	    changeChapter(comics_labels, chapter_nr+1, 1)
     }
 
 
@@ -205,6 +229,15 @@ let App = () => {
 	} else {
 		setPage(comics_labels[chapter_nr], page_nr+1)
 	}
+	if(page_nr+1 === 2) {
+		getComicImages(comics_labels[chapter_nr]) // Preload rest of Images
+	}
+/*
+	else
+	if(page_nr+1 === comics_labels[chapter_nr].count/2) {
+		getComicImages(comics_labels[chapter_nr+1])
+	}
+*/
     }
     const prevPage = () => {
 	console.log("Prev Page")
@@ -214,6 +247,12 @@ let App = () => {
 	} else {
 		setPage(comics_labels[chapter_nr], page_nr-1)
 	}
+/*
+	else
+	if(page_nr+1 === comics_labels[chapter_nr].count/2) {
+		getComicImages(comics_labels[chapter_nr-1])
+	}
+*/
     }
     const onTap = (touch) => {
 	//console.log(touch.clientX)
@@ -241,14 +280,64 @@ let App = () => {
         trackMouse: true
     })
 
+    const listChange = (e) => {
+	    console.log(e)
+    }
+
+    const drawerChange = (val) => {
+	setIsDrawerOpen(val)
+	console.log(listRef.current)
+	//console.log(listRef.current.scrollToIndex(chapter_nr+24))
+	//if(val) listRef.current.scrollToIndex(chapter_nr+24)
+    }
+
+    const renderLabel = ({key, index, style}) => {
+	return(
+		//<div key={label.key} onClick={() => changeChapter(comics_labels, label.value, 1)}><b>{(label.value === chapter_nr)?'• ':''}{label.value+1}</b></div>
+		<div id="list-label" key={key} style={style} onClick={() => changeChapter(comics_labels, index, 1)}>{(index === chapter_nr)?'• ':' '}{true?"Chapter: "+(index+1):comics_labels[index].label}</div>
+	)
+	    //return(<li key={label.key} onClick={() => setPage(label)}><b>{label.value}</b></li>)
+    }
+
+    const reloadSource = (label) => {
+        setSourceArr(encodeURI(`${api_root}/${comic_name}/${label.label}/${label.hq && hq_enabled?"hq/":""}${pad(page_nr)}.png`))
+    }
+
     return (
         <>
         {comics_labels && false ? <Dropdown options={comics_labels} onChange={setPage} value={comics_labels[chapter_nr]} placeholder="Select an option" /> : null}
         {
               //comic_images ? <Dropdown options={comic_images} onChange={setPage} value={comic_images[page_nr]} placeholder="Select an option" /> : null
         }
-	{
-	}
+	<Drawer open={is_drawer_open} onChange={drawerChange}>
+	<button onClick={() => (setHQEnabled(!hq_enabled) && changeChapter(comics_labels, chapter_nr, 1))}>Toggle HQ</button>
+        {comics_labels && false ? <Flatlist list={comics_labels} onChange={setPage} scrollToInitialIndex={chapter_nr} renderItem={renderLabel} /> : null}
+        {comics_labels && true ?
+	<AutoSize>
+	{({width, height}) => (
+<List
+	ref={listRef}
+	//ref={(elem) => (elem.current.scrollToIndex(chapter_nr+24))}
+	width={width}
+	height={height}
+	rowCount={comics_labels.length}
+	rowHeight={30}
+	rowRenderer={renderLabel}
+	scrollToIndex={chapter_nr+24}
+	renderItem={renderLabel}
+/> )}
+</AutoSize>
+
+
+: null}
+
+	{ comics_labels && false ? comics_labels.map(function(label) {
+		//return <li>i</li>
+    		//const changeChapter = (labels, new_chapter_nr, new_page_nr) => {
+		//return (<li key={label.value} onClick={console.log}>{label.value}</li>)
+		return (<li key={label.value} data-id={"Test"} onClick={listChange.bind(this)}>{label.value}</li>)
+	}) : null}
+	</Drawer>
         {
             chapter_name ?
 		<EventComponent onSwiped={setSwiped} onSwipedLeft={nextPage} onSwipedRight={prevPage} onTap={onTap}>
@@ -265,10 +354,18 @@ let App = () => {
                 <ReactImageAppear id="img-background" {...handlers}
             src={encodeURI(`${api_root}/${comic_name}/${chapter_name}${has_hq && hq_enabled?"/hq/":"/"}${pad(page_nr)}.png?${new Date().getTime()}`)} placeholder={encodeURI(`${api_root}/${comic_name}/${chapter_name}/${pad(page_nr)}.png`)} showLoader={false} animationDuration={'0'}/>
 :
-                <img
+                true ? <img
 		 id="img-background"
-		src={source_arr}
+		 alt=""
+		src={source_arr} // source_arr
+		//src={"https://via.placeholder.com/480x640"}
 		{...handlers} showLoader={false} animationDuration={'0'}/>
+		:
+		<div id="img-background" {...handlers}>
+			<ReactImageAppear
+			src={encodeURI(`${api_root}/${comic_name}/${chapter_name}${has_hq && hq_enabled?"/hq/":"/"}${pad(page_nr)}.png?${new Date().getTime()}`)}
+			placeholder={source_arr}/>
+		</div>
 }
 </div>
 </EventComponent>
