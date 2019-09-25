@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://joaqim.github.io/comic-sep/precache-manifest.e2dba0f20f3482ee67d26bc6c071aefe.js"
+  "https://joaqim.github.io/comic-sep/precache-manifest.00fa654342c0b2df8917328197b780b1.js"
 );
 
 self.addEventListener('message', (event) => {
