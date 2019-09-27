@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "1c575b699f8cb23e82af97f7610be9b1",
+    "revision": "402e5e1b4565566958bbc2a53b39efb7",
     "url": "https://joaqim.github.io/comic-sep/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://joaqim.github.io/comic-sep/static/css/2.d58fcd6a.chunk.css"
   },
   {
-    "revision": "169faf01f6b0d0fcc0f4",
+    "revision": "fea531377ba9a44256cd",
     "url": "https://joaqim.github.io/comic-sep/static/css/main.e9b92eba.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://joaqim.github.io/comic-sep/static/js/2.9a0d32a8.chunk.js"
   },
   {
-    "revision": "169faf01f6b0d0fcc0f4",
-    "url": "https://joaqim.github.io/comic-sep/static/js/main.c1f83fae.chunk.js"
+    "revision": "fea531377ba9a44256cd",
+    "url": "https://joaqim.github.io/comic-sep/static/js/main.15c256ec.chunk.js"
   },
   {
     "revision": "5e66d0efa5b05b420a68",
