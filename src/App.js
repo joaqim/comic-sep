@@ -113,7 +113,7 @@ let App = () => {
     const [comic_data, setComicData] = useState([])
     const [comic_images, setComicImages] = useState([])
 
-    const [chapter_nr, setChapterNr] = useState(536) //523 ( Add @1 )
+    const [chapter_nr, setChapterNr] = useState(563) //( Add +1 )
     const [chapter_name, setChapterName] = useState()
     const [page_nr, setPageNr] = useState(1)
     const [page_count, setPageCount] = useState(0)
@@ -174,6 +174,7 @@ let App = () => {
 	}
         try {
             const response = await fetch(encodeURI(`${api_root}/comics.json`))
+            //const response = await fetch(encodeURI(`${api_root}/${comic_name}/comics.json`)) //TODO
             let json = await response.json()
             //let labels = []
             //Object.keys(json).forEach(function(index) {labels[index] = json[index]})
@@ -214,7 +215,7 @@ let App = () => {
     }
 
     const prevChapter = () => {
-	    changeChapter(comics_labels, chapter_nr-1, comics_labels[chapter_nr-1].count-1)
+	    changeChapter(comics_labels, chapter_nr-1, comics_labels[chapter_nr-1].count)
     }
     const nextChapter = () => {
 	    changeChapter(comics_labels, chapter_nr+1, 1)
@@ -223,7 +224,7 @@ let App = () => {
 
     const nextPage = () => {
 	console.log("Next Page")
-	if(page_nr+1 >= comics_labels[chapter_nr].count) {
+	if(page_nr+1 > comics_labels[chapter_nr].count) {
 		nextChapter();
 		//changeChapter(comics_labels, chapter_nr+1, 1)
 	} else {
