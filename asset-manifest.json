@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "https://joaqim.github.io/comic-sep/static/css/main.e9b92eba.chunk.css",
-    "main.js": "https://joaqim.github.io/comic-sep/static/js/main.57275c58.chunk.js",
-    "main.js.map": "https://joaqim.github.io/comic-sep/static/js/main.57275c58.chunk.js.map",
+    "main.css": "https://joaqim.github.io/comic-sep/static/css/main.942b8ebe.chunk.css",
+    "main.js": "https://joaqim.github.io/comic-sep/static/js/main.4a00af48.chunk.js",
+    "main.js.map": "https://joaqim.github.io/comic-sep/static/js/main.4a00af48.chunk.js.map",
     "runtime-main.js": "https://joaqim.github.io/comic-sep/static/js/runtime-main.4508c259.js",
     "runtime-main.js.map": "https://joaqim.github.io/comic-sep/static/js/runtime-main.4508c259.js.map",
     "static/css/2.d58fcd6a.chunk.css": "https://joaqim.github.io/comic-sep/static/css/2.d58fcd6a.chunk.css",
     "static/js/2.3a80be68.chunk.js": "https://joaqim.github.io/comic-sep/static/js/2.3a80be68.chunk.js",
     "static/js/2.3a80be68.chunk.js.map": "https://joaqim.github.io/comic-sep/static/js/2.3a80be68.chunk.js.map",
     "index.html": "https://joaqim.github.io/comic-sep/index.html",
-    "precache-manifest.9813993aada3d912806e63f792a75d09.js": "https://joaqim.github.io/comic-sep/precache-manifest.9813993aada3d912806e63f792a75d09.js",
+    "precache-manifest.99488b1deebebab55a3073ffbec03687.js": "https://joaqim.github.io/comic-sep/precache-manifest.99488b1deebebab55a3073ffbec03687.js",
     "service-worker.js": "https://joaqim.github.io/comic-sep/service-worker.js",
     "static/css/2.d58fcd6a.chunk.css.map": "https://joaqim.github.io/comic-sep/static/css/2.d58fcd6a.chunk.css.map",
-    "static/css/main.e9b92eba.chunk.css.map": "https://joaqim.github.io/comic-sep/static/css/main.e9b92eba.chunk.css.map"
+    "static/css/main.942b8ebe.chunk.css.map": "https://joaqim.github.io/comic-sep/static/css/main.942b8ebe.chunk.css.map"
   }
 }
